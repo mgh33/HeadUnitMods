@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">MtcMod</string>
+    <string name="current_volume">Current Volume</string>
+    <string name="test">Test</string>
+    <string name="volume_status">Volume status</string>
+    <string name="send">Send</string>
+    <string name="sendkld">sendKLD</string>
+    <string name="lcdDefault"><![CDATA[OF2&&&&&&&&-000000000]]></string>
+</resources>
