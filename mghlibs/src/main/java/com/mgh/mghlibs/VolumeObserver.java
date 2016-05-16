@@ -18,6 +18,7 @@ class VolumeObserver extends ContentObserver {
 
     private IVolumeUpdateListener listener;
     private int lstVol;
+    private int lstVolChangedBroad = 15;
     private Context ctx;
     private AudioManager am;
 
@@ -40,18 +41,27 @@ class VolumeObserver extends ContentObserver {
             @Override
             public void onReceive(Context context, Intent intent) {
 
-
                 if (intent.getAction().equals("com.microntek.irkeyDown") ||
                     intent.getAction().equals("com.microntek.irkeyUp")){
                     try{
                         if (intent.getIntExtra("keyCode", -1) == 4){
                             // key for Mute is pressed
-                            Log.v(TAG, "mute received");
+                            //Log.v(TAG, "mute received");
                             listener.changed();
                         }
                     }catch (Throwable e){
                         Log.e(TAG, "error on handling extra of mute", e);
                     }
+                } else if (intent.getAction().equals("com.microntek.VOLUME_CHANGED")){
+                    // Volume changed broadcast
+                    //Log.v(TAG, "Volume changed broadcast");
+                    try{
+                        // in case of mute the volume send in this extra will be zero
+                        lstVolChangedBroad = intent.getIntExtra("volume", 15);
+                    }catch (Throwable e){
+                        Log.e(TAG, "error on handling extra of VOLUME_CHANGED", e);
+                    }
+                    listener.changed();
                 }
             }
         };
@@ -60,6 +70,7 @@ class VolumeObserver extends ContentObserver {
             IntentFilter filter = new IntentFilter();
             filter.addAction("com.microntek.irkeyDown");
             filter.addAction("com.microntek.irkeyUp");
+            filter.addAction("com.microntek.VOLUME_CHANGED");
             ctx.registerReceiver(receiver, filter);
         }catch (Throwable e){
             Log.e(TAG, "error on register Mute receiver", e);
@@ -76,11 +87,9 @@ class VolumeObserver extends ContentObserver {
     @Override
     public void onChange(boolean selfChange) {
         super.onChange(selfChange);
-        Log.v(TAG, "Settings change detected");
+        //Log.v(TAG, "Settings change detected");
 
         int currentVolume = getVolume();
-
-
 
         if (lstVol != currentVolume) {
             //Log.v(TAG, "update listener");
@@ -104,9 +113,13 @@ class VolumeObserver extends ContentObserver {
 
     public boolean getMute(){
         try{
-            final String KEY = "av_mute=";
-            String mute = am.getParameters(KEY);
-            return mute.equals("true");
+            //final String KEY = "av_mute=";
+            //String mute = am.getParameters(KEY);
+            //return mute.equals("true");
+
+            // this is a quite strange behaviour but it can happen that av_mute=false,
+            // but the system is silent anyway
+            return lstVolChangedBroad == 0;
         }catch (Throwable e){
             Log.e(TAG, "error on read mute", e);
         }

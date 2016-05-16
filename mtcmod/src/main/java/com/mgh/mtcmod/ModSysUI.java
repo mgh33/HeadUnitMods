@@ -1,15 +1,12 @@
 package com.mgh.mtcmod;
 
 import android.app.AndroidAppHelper;
-import android.app.Application;
-import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.XModuleResources;
 import android.content.res.XResources;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.ImageView;
@@ -18,10 +15,7 @@ import android.widget.TextView;
 
 import com.mgh.mghlibs.MghService;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -32,13 +26,12 @@ import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResou
 import de.robv.android.xposed.callbacks.XC_LayoutInflated;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-//todo: mute
 
-//todo: KLD
 
-public class ModSys implements IXposedHookZygoteInit, IXposedHookInitPackageResources, IXposedHookLoadPackage {
 
-    private final static String TAG = "mgh-modSys";
+public class ModSysUI implements IXposedHookZygoteInit, IXposedHookInitPackageResources, IXposedHookLoadPackage {
+
+    private final static String TAG = "mgh-modSysUI";
 
     private String mod_path = null;
 
@@ -68,7 +61,7 @@ public class ModSys implements IXposedHookZygoteInit, IXposedHookInitPackageReso
     }
     public void updateVol(int volume, boolean mute) {
 
-        Log.i(TAG, "update txtField; vol: " + volume + ", mute: " + mute);
+        //Log.i(TAG, "update txtField; vol: " + volume + ", mute: " + mute);
 
         if (txtVolume != null) {
             txtVolume.setText(String.format(Locale.getDefault(),"%2d",volume));
@@ -141,17 +134,17 @@ public class ModSys implements IXposedHookZygoteInit, IXposedHookInitPackageReso
                     buttonLayout.addView(spdDispLayout, 5);
 
                 }catch(Throwable e){
-                    Log.e(ModSys.TAG, "error in handler", e);
+                    Log.e(ModSysUI.TAG, "error in handler", e);
                 }
 
                 try{
-                    InfoReceiver inf = new InfoReceiver(ModSys.this);
+                    InfoReceiver inf = new InfoReceiver(ModSysUI.this);
                     IntentFilter filter = new IntentFilter();
                     filter.addAction(MghService.INTENT_ACTION_UPD_SPEED);
                     filter.addAction(MghService.INTENT_ACTION_UPD_VOLUME);
                     ctx.registerReceiver(inf, filter);
                 }catch (Throwable e){
-                    Log.e(ModSys.TAG, "error in handler", e);
+                    Log.e(ModSysUI.TAG, "error in handler", e);
 
                 }
 
@@ -175,22 +168,22 @@ public class ModSys implements IXposedHookZygoteInit, IXposedHookInitPackageReso
             try{
                 cls = Class.forName(appSysUI, false, loadPackageParam.classLoader);
             }catch (Throwable e){
-                Log.e(ModSys.TAG, "error on find class " + appSysUI, e);
+                Log.e(ModSysUI.TAG, "error on find class " + appSysUI, e);
                 return;
             }
 
             try {
-                Log.v(ModSys.TAG, "try to hook oncreate");
+                Log.v(ModSysUI.TAG, "try to hook oncreate");
 
                 final Intent intent = new Intent();
 
                 try{
-                    ComponentName name = new ComponentName(ModSys.class.getPackage().getName().toString(),
+                    ComponentName name = new ComponentName(ModSysUI.class.getPackage().getName().toString(),
                             MghService.class.getCanonicalName());
-                    //Log.d(ModSys.TAG, "compName: " + name.toString());
+                    //Log.d(ModSysUI.TAG, "compName: " + name.toString());
                     intent.setComponent(name);
                 }catch (Throwable e){
-                    Log.e(ModSys.TAG, "error on creating intent", e);
+                    Log.e(ModSysUI.TAG, "error on creating intent", e);
                 }
 
                 XposedHelpers.findAndHookMethod(cls, "onCreate", new XC_MethodHook() {
@@ -201,17 +194,17 @@ public class ModSys implements IXposedHookZygoteInit, IXposedHookInitPackageReso
                         Context appCtx = AndroidAppHelper.currentApplication();
 
                         try {
-                            //Log.v(ModSys.TAG, "start mghService");
+                            //Log.v(ModSysUI.TAG, "start mghService");
                             appCtx.startService(intent);
 
                         }catch (Throwable e){
-                            Log.e(ModSys.TAG, "error on start service", e);
+                            Log.e(ModSysUI.TAG, "error on start service", e);
                         }
                     }
                 });
 
             }catch (Throwable e) {
-                Log.e(ModSys.TAG, "error on hooking field", e);
+                Log.e(ModSysUI.TAG, "error on hooking field", e);
             }
 
         }

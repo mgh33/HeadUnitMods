@@ -16,9 +16,12 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 
-//todo: mic- test
-//todo: KLD
 
+//todo: mediaplayer
+//todo: mic- test
+
+//todo: KLD
+//todo: headunit volchange slider testen
 public class ModKld implements IXposedHookZygoteInit, IXposedHookLoadPackage {
 
     private final static String TAG = "mgh-modKld";
@@ -44,8 +47,6 @@ public class ModKld implements IXposedHookZygoteInit, IXposedHookLoadPackage {
 
         //region replace messages to KLD display
 
-        Log.i(ModKld.TAG, "this: " + this.toString());
-
         Class cls;
         try{
             cls = Class.forName(appKld, false, loadPackageParam.classLoader);
@@ -55,7 +56,7 @@ public class ModKld implements IXposedHookZygoteInit, IXposedHookLoadPackage {
         }
 
         try {
-            //Log.v(ModSys.TAG, "try to hook writePort");
+            //Log.v(ModSysUI.TAG, "try to hook writePort");
             XposedHelpers.findAndHookMethod(cls, "WritePortKLD", String.class, new HookKLD());
         }catch (Throwable e) {
             Log.e(ModKld.TAG, "error on hooking field", e);
@@ -70,12 +71,12 @@ public class ModKld implements IXposedHookZygoteInit, IXposedHookLoadPackage {
         }
 
         try {
-            //Log.v(ModSys.TAG, "try to hook CanbusServer2 onCreate");
+            //Log.v(ModSysUI.TAG, "try to hook CanbusServer2 onCreate");
             XposedHelpers.findAndHookMethod(cls, "onCreate", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     try {
-                        Log.i(ModKld.TAG, "this: " + ModKld.this.toString());
+
                         ModKld.this.canServer = (Service) param.thisObject;
 
                         InfoReceiverKld inf = new InfoReceiverKld(ModKld.this);
@@ -112,7 +113,7 @@ public class ModKld implements IXposedHookZygoteInit, IXposedHookLoadPackage {
                     //Log.d(HookKLD.TAG, "para=" + param.args[0].toString());
                     if (param.args[0].toString().startsWith("OFF")) {
                         // instead of OFF the time will be displayed
-                        Log.d(HookKLD.TAG, "replace OFF");
+                        //Log.d(HookKLD.TAG, "replace OFF");
                         Time t = new Time();
                         t.setToNow();
                         String s = t.format("%T");

@@ -11,7 +11,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
@@ -29,7 +31,8 @@ public class MghService extends Service implements LocationListener, VolumeObser
     public final static String INTENT_ACTION_UPD_VOLUME = MghService.class.getCanonicalName() + ".update_volume";
     public final static String INTENT_ACTION_SEND_KLD = MghService.class.getCanonicalName() + ".SEND_KLD";
 
-    VolumeObserver volumeObserver;
+    private VolumeObserver volumeObserver;
+
 
 
     //region Overrides
@@ -62,7 +65,7 @@ public class MghService extends Service implements LocationListener, VolumeObser
                                 //Log.d(TAG, "provider is enabled");
                                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, MghService.this);
                             }//else
-                                //Log.d(TAG, "provider is disabled");
+                            //Log.d(TAG, "provider is disabled");
 
                         } else {
                             Log.w(TAG, "location updates not registered (permissions not granted");
@@ -93,6 +96,8 @@ public class MghService extends Service implements LocationListener, VolumeObser
         //endregion
     }
 
+
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -106,10 +111,10 @@ public class MghService extends Service implements LocationListener, VolumeObser
 
         //Log.v(TAG, "onlocationchanged");
         try {
-            //if (!Settings.get(this).getSpeedEnable()) return; // Speed control is disabled
+
             if (!location.hasSpeed()) return; // Speed control is disabled
 
-            Log.v(TAG, "accuracy: " + location.getAccuracy()); //todo: tst accuracy
+            //Log.v(TAG, "accuracy: " + location.getAccuracy());
 
             double speed = location.getSpeed();
             speed = speed * 3.6; // m/s => km/h
@@ -147,12 +152,12 @@ public class MghService extends Service implements LocationListener, VolumeObser
 
     @Override
     public void onProviderEnabled(String provider) {
-        //Log.v(TAG, "GPS provider enabled");
+        Log.v(TAG, "GPS provider enabled");
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        //Log.v(TAG, "GPS provider disabled");
+        Log.v(TAG, "GPS provider disabled");
     }
     //endregion
     //endregion

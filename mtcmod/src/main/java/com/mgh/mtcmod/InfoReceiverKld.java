@@ -8,7 +8,7 @@ import android.util.Log;
 import com.mgh.mghlibs.MghService;
 
 /**
- * Only because ModSys can't be a BroadcastReceiver itself (due to Xposed)
+ * Only because ModSysUI can't be a BroadcastReceiver itself (due to Xposed)
  */
 public class InfoReceiverKld extends BroadcastReceiver {
 

@@ -8,15 +8,15 @@ import android.util.Log;
 import com.mgh.mghlibs.MghService;
 
 /**
- * Only because ModSys can't be a BroadcastReceiver itself (due to Xposed)
+ * Only because ModSysUI can't be a BroadcastReceiver itself (due to Xposed)
  */
 public class InfoReceiver extends BroadcastReceiver {
 
     private final static String TAG = "mgh-infoReceiver";
 
-    private ModSys listener;
+    private ModSysUI listener;
 
-    public InfoReceiver(ModSys listener) {
+    public InfoReceiver(ModSysUI listener) {
         this.listener = listener;
     }
 
