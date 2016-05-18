@@ -21,7 +21,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 //todo: mic- test
 
 //todo: KLD
-//todo: headunit volchange slider testen
 public class ModKld implements IXposedHookZygoteInit, IXposedHookLoadPackage {
 
     private final static String TAG = "mgh-modKld";
@@ -116,8 +115,9 @@ public class ModKld implements IXposedHookZygoteInit, IXposedHookLoadPackage {
                         //Log.d(HookKLD.TAG, "replace OFF");
                         Time t = new Time();
                         t.setToNow();
-                        String s = t.format("%T");
-                        s += "&&&-000000000";
+                        String s = t.format("%T").replace(':', '.');
+                        s = "&&" + s;
+                        s += "&-000000000";
                         param.args[0] = s;
                     }
                 }

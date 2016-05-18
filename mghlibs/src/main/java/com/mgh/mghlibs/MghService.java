@@ -26,6 +26,7 @@ public class MghService extends Service implements LocationListener, VolumeObser
     public final static String INTENT_EXTRA_VOLUME = MghService.class.getCanonicalName() + ".vol";
     public final static String INTENT_EXTRA_MUTE = MghService.class.getCanonicalName() + ".mute";
     public final static String INTENT_EXTRA_SEND_KLD = MghService.class.getCanonicalName() + ".SEND_STR";
+    public final static String INTENT_EXTRA_SEND_TIME = MghService.class.getCanonicalName() + ".SEND_TIME";
 
     public final static String INTENT_ACTION_UPD_SPEED = MghService.class.getCanonicalName() + ".update_speed";
     public final static String INTENT_ACTION_UPD_VOLUME = MghService.class.getCanonicalName() + ".update_volume";
