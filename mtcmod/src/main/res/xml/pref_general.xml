@@ -25,5 +25,10 @@
         android:title="@string/vlcmod"
         android:summary="@string/vlcmod_sum">
     </SwitchPreference>
-
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="brightness.active"
+        android:title="@string/brightnessmod"
+        android:summary="@string/brightnessmod_sum">
+    </SwitchPreference>
 </PreferenceScreen>

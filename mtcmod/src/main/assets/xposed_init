@@ -2,4 +2,5 @@ com.mgh.mtcmod.ModSysUI
 com.mgh.mtcmod.ModKld
 com.mgh.mtcmod.ModDefaultPlayer
 com.mgh.mtcmod.ModHideVolumebar
-//com.mgh.mtcmod.KeyRemap
+com.mgh.mtcmod.ModBrightness
+

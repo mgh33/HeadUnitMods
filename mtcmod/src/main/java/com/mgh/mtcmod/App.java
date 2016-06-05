@@ -16,9 +16,9 @@ public class App extends Application {
     public static Context getAppContext() {
         return App.context;
     }
-
+/*
     public static Settings Settings(){
         return Settings.getInstance();
     }
-
+*/
 }

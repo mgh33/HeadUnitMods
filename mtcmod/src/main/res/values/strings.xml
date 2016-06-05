@@ -19,6 +19,8 @@
     <string name="hide_volumebar_sum">Hide the volumebar usually shown by the system</string>
     <string name="vlcmod">Make VLC default player</string>
     <string name="vlcmod_sum">Makes only sense if the MTC-VLC player is installed</string>
+    <string name="brightnessmod">Enable BrightnessMod</string>
+    <string name="brightnessmod_sum">Synchronise the slider for the screen brightness</string>
 
 
 </resources>

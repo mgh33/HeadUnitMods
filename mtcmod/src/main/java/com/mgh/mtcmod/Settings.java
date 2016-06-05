@@ -34,5 +34,9 @@ public class Settings {
         return settings.getBoolean("vlcmod.active", false);
     }
 
+    public boolean enableBrightnessMod(){
+        return settings.getBoolean("brightness.active", false);
+    }
+
 
 }

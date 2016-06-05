@@ -83,12 +83,13 @@ public class ModSysUI extends ModBase implements IXposedHookInitPackageResources
     }
 
 
-
-
     public void handleInitPackageResources(final InitPackageResourcesParam resparam) throws Throwable {
 
         if (!resparam.packageName.equals(pkgSysUI)) return;
-        if (!App.Settings().showSpeed() && !App.Settings().showVolume()) return;
+        if (!showSpeed() && !showVolume()) {
+            Log.i(ModSysUI.TAG, "!!!!disabled");
+            return;
+        }
 
         sysUiRes = resparam.res;
         XModuleResources localRes = XModuleResources.createInstance(mod_path, resparam.res);
@@ -124,9 +125,9 @@ public class ModSysUI extends ModBase implements IXposedHookInitPackageResources
                     imgSpd.setImageResource(resIdSpdIcon);
 
 
-                    if (App.Settings().showVolume())
+                    if (showVolume())
                         buttonLayout.addView(volDispLayout, 5);
-                    if (App.Settings().showSpeed())
+                    if (showSpeed())
                         buttonLayout.addView(spdDispLayout, 5);
 
                 }catch(Throwable e){
@@ -136,13 +137,13 @@ public class ModSysUI extends ModBase implements IXposedHookInitPackageResources
                 try{
                     InfoReceiver inf = new InfoReceiver(ModSysUI.this);
                     IntentFilter filter = new IntentFilter();
-                    if (App.Settings().showSpeed())
+                    if (showSpeed())
                         filter.addAction(MghService.INTENT_ACTION_UPD_SPEED);
-                    if (App.Settings().showVolume())
+                    if (showVolume())
                         filter.addAction(MghService.INTENT_ACTION_UPD_VOLUME);
                     ctx.registerReceiver(inf, filter);
                 }catch (Throwable e){
-                    Log.e(ModSysUI.TAG, "error in handler", e);
+                    Log.e(ModSysUI.TAG, "error on registering receiver", e);
 
                 }
 
@@ -159,6 +160,11 @@ public class ModSysUI extends ModBase implements IXposedHookInitPackageResources
 
         if (loadPackageParam.packageName.equals(pkgSysUI)){
 
+            if (!showSpeed() && !showVolume()) {
+                Log.i(ModSysUI.TAG, "!!!!disabled2");
+                return;
+            }
+
             // start the MghService together with SystemUI
             //region handle start SystemUI
 
@@ -171,7 +177,7 @@ public class ModSysUI extends ModBase implements IXposedHookInitPackageResources
             }
 
             try {
-                Log.v(ModSysUI.TAG, "try to hook oncreate");
+                //Log.v(ModSysUI.TAG, "try to hook oncreate");
 
                 final Intent intent = new Intent();
 

@@ -1,9 +1,11 @@
 package com.mgh.mtcmod;
 
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -97,7 +99,7 @@ public class SettingsActivity extends PreferenceActivity {
 
     /**
      * Binds a preference's summary to its value. More specifically, when the
-     * preference's value is changed, its summary (line of text below the
+     * preference's value is volChanged, its summary (line of text below the
      * preference title) is updated to reflect the value. The summary is also
      * immediately updated upon calling this method. The exact display format is
      * dependent on the type of preference.
@@ -116,11 +118,15 @@ public class SettingsActivity extends PreferenceActivity {
                         .getString(preference.getKey(), ""));
     }
 
+    SharedPreferences prefs = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.prefs = getSharedPreferences("com.mgh.mtcmod_prefs", 1);
+
         setupActionBar();
-    }
+     }
 
     /**
      * Set up the {@link android.app.ActionBar}, if the API is available.
@@ -168,7 +174,10 @@ public class SettingsActivity extends PreferenceActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            getPreferenceManager().setSharedPreferencesName("com.mgh.mtcmod_prefs");
+            getPreferenceManager().setSharedPreferencesMode(MODE_WORLD_READABLE);
             addPreferencesFromResource(R.xml.pref_general);
+
             setHasOptionsMenu(true);
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences

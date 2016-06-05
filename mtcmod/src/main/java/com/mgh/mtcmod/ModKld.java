@@ -32,7 +32,7 @@ public class ModKld extends ModBase implements IXposedHookLoadPackage {
     private final String appKld = pkgKld + ".CanBusServer2";
 
 
-    Method writePortKLD;
+    private Method writePortKLD;
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {

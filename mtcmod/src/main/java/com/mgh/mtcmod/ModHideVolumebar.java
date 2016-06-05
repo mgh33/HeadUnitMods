@@ -16,14 +16,15 @@ public class ModHideVolumebar extends ModBase implements IXposedHookLoadPackage{
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
 
-        if (!App.Settings().hideVolumeBar()) return;
-        if (!loadPackageParam.packageName.equals(pkgSysUI)) return;
+        if (!hideVolumeBar()) return;
+        if (!loadPackageParam.packageName.equals(pkgMTCServer)) return;
+
 
         Class cls;
         try{
-            cls = Class.forName(appSysUI, false, loadPackageParam.classLoader);
+            cls = Class.forName(appMTCServer, false, loadPackageParam.classLoader);
         }catch (Throwable e){
-            Log.e(ModHideVolumebar.TAG, "error on find class " + appSysUI, e);
+            Log.e(ModHideVolumebar.TAG, "error on find class " + appMTCServer, e);
             return;
         }
 
@@ -34,6 +35,7 @@ public class ModHideVolumebar extends ModBase implements IXposedHookLoadPackage{
                 protected Object replaceHookedMethod(MethodHookParam methodHookParam) throws Throwable {
 
                     // just do nothing
+                    //Log.e(ModHideVolumebar.TAG, "call show Volume");
                     return null;
                 }
 

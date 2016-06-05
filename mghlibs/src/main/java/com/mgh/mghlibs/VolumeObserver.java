@@ -19,12 +19,17 @@ class VolumeObserver extends ContentObserver {
     private IVolumeUpdateListener listener;
     private int lstVol;
     private int lstVolChangedBroad = 15;
+    private int lstBrightness;
+
     private Context ctx;
     private AudioManager am;
 
     public interface IVolumeUpdateListener{
-        void changed();
+        void volChanged();
+        void brightChanged();
     }
+
+
 
     public VolumeObserver(Context ctx, final IVolumeUpdateListener listener) {
         super(new Handler());
@@ -34,7 +39,8 @@ class VolumeObserver extends ContentObserver {
 
         am = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
         ctx.getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, this );
-
+        ctx.getContentResolver().registerContentObserver(System.getUriFor("screen_brightness_mode"), false, this);
+        ctx.getContentResolver().registerContentObserver(System.getUriFor("screen_brightness"), false, this);
 
         BroadcastReceiver receiver = new BroadcastReceiver(){
 
@@ -47,21 +53,21 @@ class VolumeObserver extends ContentObserver {
                         if (intent.getIntExtra("keyCode", -1) == 4){
                             // key for Mute is pressed
                             //Log.v(TAG, "mute received");
-                            listener.changed();
+                            listener.volChanged();
                         }
                     }catch (Throwable e){
                         Log.e(TAG, "error on handling extra of mute", e);
                     }
                 } else if (intent.getAction().equals("com.microntek.VOLUME_CHANGED")){
-                    // Volume changed broadcast
-                    //Log.v(TAG, "Volume changed broadcast");
+                    // Volume volChanged broadcast
+                    //Log.v(TAG, "Volume volChanged broadcast");
                     try{
                         // in case of mute the volume send in this extra will be zero
                         lstVolChangedBroad = intent.getIntExtra("volume", 15);
                     }catch (Throwable e){
                         Log.e(TAG, "error on handling extra of VOLUME_CHANGED", e);
                     }
-                    listener.changed();
+                    listener.volChanged();
                 }
             }
         };
@@ -90,13 +96,19 @@ class VolumeObserver extends ContentObserver {
         //Log.v(TAG, "Settings change detected");
 
         int currentVolume = getVolume();
+        int currentBrightness = getBrightness();
 
         if (lstVol != currentVolume) {
             //Log.v(TAG, "update listener");
-            listener.changed();
+            listener.volChanged();
         }
 
+        if (lstBrightness != currentBrightness) {
+            Log.v(TAG, "update listener brightness: " + getBrightness());
+            listener.brightChanged();
+        }
         lstVol = currentVolume;
+        lstBrightness = currentBrightness;
     }
 
     public int getVolume(){
@@ -110,6 +122,16 @@ class VolumeObserver extends ContentObserver {
         return 0;
     }
 
+    public int getBrightness(){
+        try{
+            final String KEY = "screen_brightness";
+            return System.getInt(ctx.getContentResolver(), KEY);
+        }catch (Throwable e){
+            Log.e(TAG, "error on read brightness", e);
+        }
+
+        return 0;
+    }
 
     public boolean getMute(){
         try{

@@ -2,10 +2,8 @@ package com.mgh.mghlibs;
 
 import android.Manifest;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -24,13 +22,16 @@ public class MghService extends Service implements LocationListener, VolumeObser
 
     public final static String INTENT_EXTRA_SPEED = MghService.class.getCanonicalName() + ".speed";
     public final static String INTENT_EXTRA_VOLUME = MghService.class.getCanonicalName() + ".vol";
+    public final static String INTENT_EXTRA_BRIGHTNESS = MghService.class.getCanonicalName() + ".brightness";
     public final static String INTENT_EXTRA_MUTE = MghService.class.getCanonicalName() + ".mute";
     public final static String INTENT_EXTRA_SEND_KLD = MghService.class.getCanonicalName() + ".SEND_STR";
     public final static String INTENT_EXTRA_SEND_TIME = MghService.class.getCanonicalName() + ".SEND_TIME";
 
     public final static String INTENT_ACTION_UPD_SPEED = MghService.class.getCanonicalName() + ".update_speed";
     public final static String INTENT_ACTION_UPD_VOLUME = MghService.class.getCanonicalName() + ".update_volume";
+    public final static String INTENT_ACTION_UPD_BRIGHTNESS = MghService.class.getCanonicalName() + ".update_brightness";
     public final static String INTENT_ACTION_SEND_KLD = MghService.class.getCanonicalName() + ".SEND_KLD";
+
 
     private VolumeObserver volumeObserver;
 
@@ -41,7 +42,7 @@ public class MghService extends Service implements LocationListener, VolumeObser
 
             //Log.v(TAG, "try to register location manager");
             if (! register()){
-                // try to register after 30sec
+                // try to register again after 30sec
                 registerHandler.sendEmptyMessageDelayed(0, 30000);
                 Log.e(TAG, "error on register location manager");
             }
@@ -58,7 +59,7 @@ public class MghService extends Service implements LocationListener, VolumeObser
         volumeObserver =  new VolumeObserver(this, this);
 
         // fill the fields with current values
-        changed();
+        volChanged();
 
         //Log.v(TAG, "try to register location manager 2");
         // try to register after 15sec
@@ -135,6 +136,7 @@ public class MghService extends Service implements LocationListener, VolumeObser
 
             int spd = (int) Math.round(speed);
             if (spd != lstSpeed) {
+                Log.v(TAG, "onlocationchanged");
                 Intent intent = new Intent(INTENT_ACTION_UPD_SPEED);
                 intent.putExtra(INTENT_EXTRA_SPEED, spd);
                 sendBroadcast(intent);
@@ -149,18 +151,26 @@ public class MghService extends Service implements LocationListener, VolumeObser
 
 
     @Override
-    public void changed() {
-        //Log.v(TAG, "volume changed ");
+    public void volChanged() {
+        //Log.v(TAG, "volume volChanged ");
         Intent intent = new Intent(INTENT_ACTION_UPD_VOLUME);
         intent.putExtra(INTENT_EXTRA_VOLUME, volumeObserver.getVolume());
         intent.putExtra(INTENT_EXTRA_MUTE, volumeObserver.getMute());
         sendBroadcast(intent);
     }
 
+    @Override
+    public void brightChanged() {
+        //Log.v(TAG, "brightness volChanged ");
+        Intent intent = new Intent(INTENT_ACTION_UPD_BRIGHTNESS);
+        intent.putExtra(INTENT_EXTRA_BRIGHTNESS, volumeObserver.getBrightness());
+        sendBroadcast(intent);
+    }
+
     //region empty Overrides
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        Log.v(TAG, "GPS status changed: " + status);
+        Log.v(TAG, "GPS status volChanged: " + status);
     }
 
     @Override

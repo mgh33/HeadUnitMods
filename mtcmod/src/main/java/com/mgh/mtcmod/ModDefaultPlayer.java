@@ -23,14 +23,11 @@ public class ModDefaultPlayer extends ModBase implements IXposedHookLoadPackage 
 
     private final static String TAG = "mgh-modDefaultPlayer";
 
-    private final String pkgMTCServer = "android.microntek.service";
-    private final String appMTCServer = pkgMTCServer + ".MicrontekServer";
-
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
 
-        if (!App.Settings().activateVlc()) return;
+        if (!activateVlc()) return;
 
         //Log.v(ModDefaultPlayer.TAG,"pgk: "  + loadPackageParam.packageName);
         if (loadPackageParam.packageName.equals(pkgMTCServer)){
