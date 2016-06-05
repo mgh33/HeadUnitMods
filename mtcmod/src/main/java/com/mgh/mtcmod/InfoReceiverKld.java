@@ -61,7 +61,7 @@ public class InfoReceiverKld extends BroadcastReceiver {
 
                 str += "-000000000";
 
-                Log.v(TAG, "write KLD: " + str);
+                //Log.v(TAG, "write KLD: " + str);
                 listener.writePortKLD(str);
             }catch (Throwable e){
                 Log.e(TAG, "error on intent " + MghService.INTENT_ACTION_SEND_KLD, e);

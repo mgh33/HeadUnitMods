@@ -19,19 +19,9 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 
-public class ModDefaultPlayer implements IXposedHookZygoteInit, IXposedHookLoadPackage {
+public class ModDefaultPlayer extends ModBase implements IXposedHookLoadPackage {
 
     private final static String TAG = "mgh-modDefaultPlayer";
-
-    private String mod_path = null;
-
-
-
-    public void initZygote(StartupParam startupParam) throws Throwable {
-        mod_path = startupParam.modulePath;
-
-    }
-
 
     private final String pkgMTCServer = "android.microntek.service";
     private final String appMTCServer = pkgMTCServer + ".MicrontekServer";
@@ -39,6 +29,8 @@ public class ModDefaultPlayer implements IXposedHookZygoteInit, IXposedHookLoadP
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
+
+        if (!App.Settings().activateVlc()) return;
 
         //Log.v(ModDefaultPlayer.TAG,"pgk: "  + loadPackageParam.packageName);
         if (loadPackageParam.packageName.equals(pkgMTCServer)){
@@ -148,7 +140,7 @@ public class ModDefaultPlayer implements IXposedHookZygoteInit, IXposedHookLoadP
                             str = (String) param.args[0];
                             i = (Integer) param.args[1];
 
-                            gps_isfront = false;//XposedHelpers.getStaticBooleanField(cls, "gps_isfront");
+                            gps_isfront = XposedHelpers.getStaticBooleanField(cls, "gps_isfront");
                         }catch (Throwable e){
                             Log.e(ModDefaultPlayer.TAG, "error on converting parameters", e);
                             return 0;
@@ -172,9 +164,7 @@ public class ModDefaultPlayer implements IXposedHookZygoteInit, IXposedHookLoadP
                             //service.startActivityAsUser(intent, UserHandle.CURRENT_OR_SELF);
                             UserHandle handle = (UserHandle) XposedHelpers.getStaticObjectField(UserHandle.class, "CURRENT_OR_SELF");
                             XposedHelpers.callMethod(service, "startActivityAsUser", intent, handle);
-                            //Log.v(ModDefaultPlayer.TAG, "res from call: " + res);
 
-                            //service.startActivity(intent);
                         } catch (Exception e) {
                             Log.e(ModDefaultPlayer.TAG, "error on invoking startActivityAsUser", e);
                             try{
@@ -238,4 +228,4 @@ public class ModDefaultPlayer implements IXposedHookZygoteInit, IXposedHookLoadP
     }
 
 
-    }
+}

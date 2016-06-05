@@ -1,0 +1,29 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="show.speed"
+        android:summary="@string/show_speed_sum"
+        android:title="@string/show_speed" >
+    </SwitchPreference>
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="show.volume"
+        android:title="@string/show_volume"
+        android:summary="@string/show_volume_sum">
+
+    </SwitchPreference>
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="hide.volumebar"
+        android:title="@string/hide_volumebar"
+        android:summary="@string/hide_volumebar_sum">
+    </SwitchPreference>
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="vlcmod.active"
+        android:title="@string/vlcmod"
+        android:summary="@string/vlcmod_sum">
+    </SwitchPreference>
+
+</PreferenceScreen>

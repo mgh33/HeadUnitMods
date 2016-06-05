@@ -29,11 +29,9 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 
 
-public class ModSysUI implements IXposedHookZygoteInit, IXposedHookInitPackageResources, IXposedHookLoadPackage {
+public class ModSysUI extends ModBase implements IXposedHookInitPackageResources, IXposedHookLoadPackage {
 
     private final static String TAG = "mgh-modSysUI";
-
-    private String mod_path = null;
 
     private ImageView imgVol;
     private ImageView imgSpd;
@@ -85,16 +83,12 @@ public class ModSysUI implements IXposedHookZygoteInit, IXposedHookInitPackageRe
     }
 
 
-    public void initZygote(StartupParam startupParam) throws Throwable {
-        mod_path = startupParam.modulePath;
-    }
 
-
-    private final String pkgSysUI = "com.android.systemui";
-    private final String appSysUI = pkgSysUI + ".SystemUIService";
 
     public void handleInitPackageResources(final InitPackageResourcesParam resparam) throws Throwable {
+
         if (!resparam.packageName.equals(pkgSysUI)) return;
+        if (!App.Settings().showSpeed() && !App.Settings().showVolume()) return;
 
         sysUiRes = resparam.res;
         XModuleResources localRes = XModuleResources.createInstance(mod_path, resparam.res);
@@ -130,8 +124,10 @@ public class ModSysUI implements IXposedHookZygoteInit, IXposedHookInitPackageRe
                     imgSpd.setImageResource(resIdSpdIcon);
 
 
-                    buttonLayout.addView(volDispLayout, 5);
-                    buttonLayout.addView(spdDispLayout, 5);
+                    if (App.Settings().showVolume())
+                        buttonLayout.addView(volDispLayout, 5);
+                    if (App.Settings().showSpeed())
+                        buttonLayout.addView(spdDispLayout, 5);
 
                 }catch(Throwable e){
                     Log.e(ModSysUI.TAG, "error in handler", e);
@@ -140,8 +136,10 @@ public class ModSysUI implements IXposedHookZygoteInit, IXposedHookInitPackageRe
                 try{
                     InfoReceiver inf = new InfoReceiver(ModSysUI.this);
                     IntentFilter filter = new IntentFilter();
-                    filter.addAction(MghService.INTENT_ACTION_UPD_SPEED);
-                    filter.addAction(MghService.INTENT_ACTION_UPD_VOLUME);
+                    if (App.Settings().showSpeed())
+                        filter.addAction(MghService.INTENT_ACTION_UPD_SPEED);
+                    if (App.Settings().showVolume())
+                        filter.addAction(MghService.INTENT_ACTION_UPD_VOLUME);
                     ctx.registerReceiver(inf, filter);
                 }catch (Throwable e){
                     Log.e(ModSysUI.TAG, "error in handler", e);

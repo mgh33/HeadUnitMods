@@ -34,6 +34,20 @@ public class MghService extends Service implements LocationListener, VolumeObser
 
     private VolumeObserver volumeObserver;
 
+    private Handler registerHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+            //Log.v(TAG, "try to register location manager");
+            if (! register()){
+                // try to register after 30sec
+                registerHandler.sendEmptyMessageDelayed(0, 30000);
+                Log.e(TAG, "error on register location manager");
+            }
+            msg.recycle();
+        }
+    };
 
 
     //region Overrides
@@ -46,58 +60,56 @@ public class MghService extends Service implements LocationListener, VolumeObser
         // fill the fields with current values
         changed();
 
-        //region Register location manager
+        //Log.v(TAG, "try to register location manager 2");
+        // try to register after 15sec
+        registerHandler.sendEmptyMessageDelayed(0, 15000);
 
-        try {
-            Log.i(TAG, "try retrieve location-manager");
-            final LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-
-            BroadcastReceiver rec = new BroadcastReceiver() {
-
-                @Override
-                public void onReceive(Context context, Intent intent) {
-
-                    //Log.v(TAG, "onReceive provider changed");
-
-                    try {
-
-                        if (ActivityCompat.checkSelfPermission(MghService.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                                //Log.d(TAG, "provider is enabled");
-                                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, MghService.this);
-                            }//else
-                            //Log.d(TAG, "provider is disabled");
-
-                        } else {
-                            Log.w(TAG, "location updates not registered (permissions not granted");
-                            // Consider calling
-                            //    ActivityCompat#requestPermissions
-                            // here to request the missing permissions, and then overriding
-                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                            //                                          int[] grantResults)
-                            // to handle the case where the user grants the permission. See the documentation
-                            // for ActivityCompat#requestPermissions for more details.
-                            //return;
-                        }
-
-                    }catch (Throwable e){
-                        Log.e(TAG, "error on registering location-manager", e);
-                    }
-                }
-            };
-
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
-            registerReceiver(rec, filter);
-
-        }catch (Throwable e){
-            Log.e(TAG, "error on retrieving locationManager", e);
-        }
-
-        //endregion
     }
 
 
+    private boolean register(){
+
+        final LocationManager locationManager;
+
+        try {
+            Log.i(TAG, "try retrieve location-manager");
+            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        }catch (Throwable e){
+            Log.e(TAG, "error on retrieving locationManager", e);
+            return false;
+        }
+
+        try {
+
+            if (ActivityCompat.checkSelfPermission(MghService.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    //Log.d(TAG, "provider is enabled");
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, MghService.this);
+
+                    registerHandler.removeMessages(0);
+                    return true;
+                }//else
+                //Log.d(TAG, "provider is disabled");
+
+            } else {
+                Log.w(TAG, "location updates not registered (permissions not granted");
+                // Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                //return;
+            }
+
+        }catch (Throwable e){
+            Log.e(TAG, "error on registering location-manager", e);
+        }
+
+        return false;
+    }
 
     @Override
     public IBinder onBind(Intent intent) {

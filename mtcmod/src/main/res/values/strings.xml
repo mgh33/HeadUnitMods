@@ -6,4 +6,19 @@
     <string name="send">Send</string>
     <string name="sendkld">sendKLD</string>
     <string name="lcdDefault"><![CDATA[OF2&&&&&&&&-000000000]]></string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <string name="pref_header_general">General</string>
+    <string name="show_speed">Show speed</string>
+    <string name="show_speed_sum">Displays the current speed in the status bar</string>
+    <string name="show_volume">Show volume</string>
+    <string name="show_volume_sum">Displays the current volume in the status bar</string>
+    <string name="hide_volumebar">Hide volumebar</string>
+    <string name="hide_volumebar_sum">Hide the volumebar usually shown by the system</string>
+    <string name="vlcmod">Make VLC default player</string>
+    <string name="vlcmod_sum">Makes only sense if the MTC-VLC player is installed</string>
+
+
 </resources>
