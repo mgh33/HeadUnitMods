@@ -23,6 +23,7 @@ class VolumeObserver extends ContentObserver {
 
     private Context ctx;
     private AudioManager am;
+    private SysProps props;
 
     public interface IVolumeUpdateListener{
         void volChanged();
@@ -36,6 +37,7 @@ class VolumeObserver extends ContentObserver {
 
         this.listener = listener;
         this.ctx = ctx;
+        props = new SysProps(ctx);
 
         am = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
         ctx.getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, this );
@@ -95,8 +97,8 @@ class VolumeObserver extends ContentObserver {
         super.onChange(selfChange);
         //Log.v(TAG, "Settings change detected");
 
-        int currentVolume = getVolume();
-        int currentBrightness = getBrightness();
+        int currentVolume = props.getVolume();
+        int currentBrightness = props.getBrightness();
 
         if (lstVol != currentVolume) {
             //Log.v(TAG, "update listener");
@@ -104,34 +106,14 @@ class VolumeObserver extends ContentObserver {
         }
 
         if (lstBrightness != currentBrightness) {
-            Log.v(TAG, "update listener brightness: " + getBrightness());
+            Log.v(TAG, "update listener brightness: " + props.getBrightness());
             listener.brightChanged();
         }
         lstVol = currentVolume;
         lstBrightness = currentBrightness;
     }
 
-    public int getVolume(){
-        try{
-            final String KEY = "av_volume=";
-            return System.getInt(ctx.getContentResolver(), KEY, 10);
-        }catch (Throwable e){
-            Log.e(TAG, "error on read volume", e);
-        }
 
-        return 0;
-    }
-
-    public int getBrightness(){
-        try{
-            final String KEY = "screen_brightness";
-            return System.getInt(ctx.getContentResolver(), KEY);
-        }catch (Throwable e){
-            Log.e(TAG, "error on read brightness", e);
-        }
-
-        return 0;
-    }
 
     public boolean getMute(){
         try{

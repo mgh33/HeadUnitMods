@@ -46,7 +46,7 @@ public class MghService extends Service implements LocationListener, VolumeObser
                 registerHandler.sendEmptyMessageDelayed(0, 30000);
                 Log.e(TAG, "error on register location manager");
             }
-            msg.recycle();
+            //msg.recycle();
         }
     };
 
@@ -154,7 +154,7 @@ public class MghService extends Service implements LocationListener, VolumeObser
     public void volChanged() {
         //Log.v(TAG, "volume volChanged ");
         Intent intent = new Intent(INTENT_ACTION_UPD_VOLUME);
-        intent.putExtra(INTENT_EXTRA_VOLUME, volumeObserver.getVolume());
+        intent.putExtra(INTENT_EXTRA_VOLUME, SysProps.getVolume(this));
         intent.putExtra(INTENT_EXTRA_MUTE, volumeObserver.getMute());
         sendBroadcast(intent);
     }
@@ -163,7 +163,7 @@ public class MghService extends Service implements LocationListener, VolumeObser
     public void brightChanged() {
         //Log.v(TAG, "brightness volChanged ");
         Intent intent = new Intent(INTENT_ACTION_UPD_BRIGHTNESS);
-        intent.putExtra(INTENT_EXTRA_BRIGHTNESS, volumeObserver.getBrightness());
+        intent.putExtra(INTENT_EXTRA_BRIGHTNESS, SysProps.getBrightness(this));
         sendBroadcast(intent);
     }
 

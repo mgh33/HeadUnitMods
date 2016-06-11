@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">DisplayLight</string>
+    <string name="BtnSettings">Settings</string>
+
+    <string name="pref_Enable">Enable brightness adjustment</string>
+
+</resources>

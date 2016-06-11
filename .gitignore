@@ -11,5 +11,6 @@
 *.pro
 /app
 gradle.properties
+/YoctoLib
 
 
