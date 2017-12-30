@@ -43,17 +43,17 @@ public class LightService extends Service {
 
         props = new SysProps(this);
         pts = new LinkedHashMap<>();
-        pts.put(10.0,0);
-        pts.put(50.0,25);               // 10%
-        pts.put(80.0,51);               // 20%
-        pts.put(100.0,77);               // 30%
-        pts.put(500.0,102);             // 40%
-        pts.put(1000.0,127);             // 50%
-        pts.put(1400.0,153);            // 60%
-        pts.put(3500.0,179);            // 70%
-        pts.put(10000.0,204);            // 80%
-        pts.put(20000.0,230);           // 90%
-        pts.put(20000.0,255);           // 100%
+        pts.put(1.0,0);
+        pts.put(5.0,25);               // 10%
+        pts.put(10.0,51);               // 20%
+        pts.put(20.0,77);               // 30%
+        pts.put(50.0,102);             // 40%
+        pts.put(100.0,127);             // 50%
+        pts.put(200.0,153);            // 60%
+        pts.put(500.0,179);            // 70%
+        pts.put(1000.0,204);            // 80%
+        pts.put(2000.0,230);           // 90%
+        pts.put(5000.0,255);           // 100%
     }
 
     private Handler myHandler = new Handler(){

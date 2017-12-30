@@ -43,6 +43,8 @@ class VolumeObserver extends ContentObserver {
         ctx.getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, this );
         ctx.getContentResolver().registerContentObserver(System.getUriFor("screen_brightness_mode"), false, this);
         ctx.getContentResolver().registerContentObserver(System.getUriFor("screen_brightness"), false, this);
+        ctx.getContentResolver().registerContentObserver(System.getUriFor("cfg_backlight="), false, this);
+
 
         BroadcastReceiver receiver = new BroadcastReceiver(){
 
@@ -106,7 +108,7 @@ class VolumeObserver extends ContentObserver {
         }
 
         if (lstBrightness != currentBrightness) {
-            Log.v(TAG, "update listener brightness: " + props.getBrightness());
+            Log.v(TAG, "update listener brightness: " + currentBrightness);
             listener.brightChanged();
         }
         lstVol = currentVolume;
