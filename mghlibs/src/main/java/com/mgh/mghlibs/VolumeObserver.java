@@ -7,8 +7,10 @@ import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.provider.Settings.System;
+
 
 
 
@@ -30,6 +32,26 @@ class VolumeObserver extends ContentObserver {
         void brightChanged();
     }
 
+    private class VolumeTwHandler extends Handler{
+        @Override
+        public void handleMessage(Message msg) {
+
+            Log.v(TAG, "what: " + msg.what + " arg1:" + msg.arg1 + " arg2:" + msg.arg2);
+
+            switch (msg.what){
+                case TWUtil.VOLUME_EVENT:
+                    if (msg.arg1 >= 0){
+                        lstVol = msg.arg1;
+                        lstVolChangedBroad = lstVol;
+                    } else {
+                        // mute
+                        lstVolChangedBroad = 0;
+                    }
+                    listener.volChanged();
+                    break;
+            }
+        }
+    }
 
 
     public VolumeObserver(Context ctx, final IVolumeUpdateListener listener) {
@@ -37,7 +59,7 @@ class VolumeObserver extends ContentObserver {
 
         this.listener = listener;
         this.ctx = ctx;
-        props = new SysProps(ctx);
+        props = SysProps.GetSysProps(ctx);
 
         am = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
         ctx.getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, this );
@@ -45,6 +67,14 @@ class VolumeObserver extends ContentObserver {
         ctx.getContentResolver().registerContentObserver(System.getUriFor("screen_brightness"), false, this);
         ctx.getContentResolver().registerContentObserver(System.getUriFor("cfg_backlight="), false, this);
 
+        TWUtil util = new TWUtil();
+        if (util.open(new short[]{(short) TWUtil.VOLUME_EVENT}) == 0) {
+
+            util.start();
+            util.addHandler("test", new VolumeTwHandler());
+        }else{
+            util.close();
+        }
 
         BroadcastReceiver receiver = new BroadcastReceiver(){
 
@@ -103,7 +133,7 @@ class VolumeObserver extends ContentObserver {
         int currentBrightness = props.getBrightness();
 
         if (lstVol != currentVolume) {
-            //Log.v(TAG, "update listener");
+            Log.v(TAG, "update listener");
             listener.volChanged();
         }
 
@@ -116,6 +146,10 @@ class VolumeObserver extends ContentObserver {
     }
 
 
+
+    public int getVolume(){
+        return lstVol;
+    }
 
     public boolean getMute(){
         try{

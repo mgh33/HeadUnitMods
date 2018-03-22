@@ -20,15 +20,15 @@ public class MghService extends Service implements LocationListener, VolumeObser
 
     private final static String TAG = "mgh-service";
 
-    public final static String INTENT_EXTRA_SPEED = MghService.class.getCanonicalName() + ".speed";
-    public final static String INTENT_EXTRA_VOLUME = MghService.class.getCanonicalName() + ".vol";
+    public final static String INTENT_EXTRA_SPEED = "speed"; //MghService.class.getCanonicalName() + ".speed";
+    public final static String INTENT_EXTRA_VOLUME = "volume"; //MghService.class.getCanonicalName() + ".vol";
     public final static String INTENT_EXTRA_BRIGHTNESS = MghService.class.getCanonicalName() + ".brightness";
-    public final static String INTENT_EXTRA_MUTE = MghService.class.getCanonicalName() + ".mute";
+    public final static String INTENT_EXTRA_MUTE = "mute"; //MghService.class.getCanonicalName() + ".mute";
     public final static String INTENT_EXTRA_SEND_KLD = MghService.class.getCanonicalName() + ".SEND_STR";
     public final static String INTENT_EXTRA_SEND_TIME = MghService.class.getCanonicalName() + ".SEND_TIME";
 
-    public final static String INTENT_ACTION_UPD_SPEED = MghService.class.getCanonicalName() + ".update_speed";
-    public final static String INTENT_ACTION_UPD_VOLUME = MghService.class.getCanonicalName() + ".update_volume";
+    public final static String INTENT_ACTION_UPD_SPEED = "com.mgh.intent.update.speed"; //MghService.class.getCanonicalName() + ".update_speed";
+    public final static String INTENT_ACTION_UPD_VOLUME = "com.mgh.intent.update.volume"; //MghService.class.getCanonicalName() + ".update_volume";
     public final static String INTENT_ACTION_UPD_BRIGHTNESS = MghService.class.getCanonicalName() + ".update_brightness";
     public final static String INTENT_ACTION_SEND_KLD = MghService.class.getCanonicalName() + ".SEND_KLD";
 
@@ -131,14 +131,14 @@ public class MghService extends Service implements LocationListener, VolumeObser
             //Log.v(TAG, "accuracy: " + location.getAccuracy());
 
             double speed = location.getSpeed();
-            speed = speed * 3.6; // m/s => km/h
+            //speed = speed * 3.6; // m/s => km/h
 
 
             int spd = (int) Math.round(speed);
             if (spd != lstSpeed) {
-                Log.v(TAG, "onlocationchanged");
+                Log.v(TAG, "onlocationchanged: speed=" + spd);
                 Intent intent = new Intent(INTENT_ACTION_UPD_SPEED);
-                intent.putExtra(INTENT_EXTRA_SPEED, spd);
+                intent.putExtra(INTENT_EXTRA_SPEED, spd*3.6);
                 sendBroadcast(intent);
             }
             lstSpeed = spd;
@@ -153,8 +153,11 @@ public class MghService extends Service implements LocationListener, VolumeObser
     @Override
     public void volChanged() {
         //Log.v(TAG, "volume volChanged ");
+
+        String str = "" + volumeObserver.getVolume();
+
         Intent intent = new Intent(INTENT_ACTION_UPD_VOLUME);
-        intent.putExtra(INTENT_EXTRA_VOLUME, SysProps.getVolume(this));
+        intent.putExtra(INTENT_EXTRA_VOLUME, str );
         intent.putExtra(INTENT_EXTRA_MUTE, volumeObserver.getMute());
         sendBroadcast(intent);
     }

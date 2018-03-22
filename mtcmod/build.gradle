@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 17
-    buildToolsVersion "23.0.3"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
         applicationId "com.mgh.mtcmod"
-        minSdkVersion 17
-        targetSdkVersion 17
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
     }
     buildTypes {
         release {
@@ -24,5 +24,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     provided 'de.robv.android.xposed:api:53'
     compile project(':mghlibs')
-    compile 'com.android.support:support-v4:23.2'
+    compile "com.android.support:support-v4:$rootProject.ext.appCompatVersion"
+
+
 }

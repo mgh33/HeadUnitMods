@@ -11,7 +11,18 @@ public class SysProps {
 
     private Context ctx;
 
-    public SysProps(Context ctx){
+
+    private static SysProps props;
+
+    public static SysProps GetSysProps(Context ctx){
+
+        if (props==null)
+            props = new SysProps(ctx);
+
+        return props;
+    }
+
+    private SysProps(Context ctx){
         this.ctx = ctx;
     }
 
@@ -47,7 +58,12 @@ public class SysProps {
         return 0;
     }
     public void setBrightness(int value){
+        if (value < 26)
+            value = 26;
+        if (value > 255)
+            value = 255;
         try{
+            Log.v(TAG, "set brightness: " + value);
             System.putInt(ctx.getContentResolver(), KEY_BRIGHTNESS, value);
         }catch (Throwable e){
             Log.e(TAG, "error on setting brightness", e);

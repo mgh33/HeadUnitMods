@@ -1,15 +1,27 @@
 package com.mgh.displaylight;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.mgh.mghlibs.SysProps;
+import com.mgh.mghlibs.MghService;
 
 
 public class MainActivity extends Activity implements View.OnClickListener{
@@ -69,6 +81,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // start service
+        Intent intent1 = new Intent(this, MghService.class);
+        startService(intent1);
+
         log = (ListView) findViewById(R.id.listLog);
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         log.setAdapter(adapter);
@@ -78,6 +94,59 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
         Intent i = new Intent(this, LightService.class);
         startService(i);
+        SysProps.GetSysProps(MainActivity.this).setBrightness(255);
+        try {
+
+            if (!android.provider.Settings.System.canWrite(this)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                intent.setData(Uri.parse("package:com.mgh.displaylight"));
+                startActivity(intent);
+            }
+
+            PackageInfo info = getPackageManager().getPackageInfo(this.getPackageName(), PackageManager.GET_PERMISSIONS);
+            if (info.requestedPermissions != null) {
+                for (String p : info.requestedPermissions) {
+                    if ( ContextCompat.checkSelfPermission( this, p ) != PackageManager.PERMISSION_GRANTED ) {
+                        ActivityCompat.requestPermissions( this, new String[] {  p  }, 1);
+                    }
+                }
+            }
+        }catch (Exception e){
+            Log.e(TAG, "error on request permissions", e);
+        }
+
+
+
+
+
+
+        final SeekBar sk= findViewById(R.id.seekBar1);
+        sk.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+                // TODO Auto-generated method stub
+
+                SysProps.GetSysProps(MainActivity.this).setBrightness(seekBar.getProgress());
+                //t1.setTextSize(progress);
+                //Toast.makeText(getApplicationContext(), String.valueOf(progress),Toast.LENGTH_LONG).show();
+
+            }
+        });
+
+
+
+
     }
 
 
@@ -90,4 +159,23 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 break;
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

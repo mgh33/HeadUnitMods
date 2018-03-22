@@ -13,10 +13,10 @@ public class BootReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         //Log.d(TAG, "onReceive");
-        if (intent.getAction() == null){
-            Log.e(TAG, "boot onreceive action is null");
-            return;
-        }
+        //if (intent.getAction() == null){
+        //    Log.e(TAG, "boot onreceive action is null");
+        //    return;
+        //}
         try {
             //Log.v(TAG, "boot onreceive Boot complete");
             Intent intent1 = new Intent(context, MghService.class);
