@@ -1,7 +1,6 @@
-package com.mgh.displaylight;
+package com.mgh.headunitmods;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 
 import android.content.pm.PackageInfo;
@@ -99,7 +98,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
             if (!android.provider.Settings.System.canWrite(this)) {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                intent.setData(Uri.parse("package:com.mgh.displaylight"));
+                intent.setData(Uri.parse("package:com.mgh.headunitmods"));
                 startActivity(intent);
             }
 
@@ -114,10 +113,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
         }catch (Exception e){
             Log.e(TAG, "error on request permissions", e);
         }
-
-
-
-
 
 
         final SeekBar sk= findViewById(R.id.seekBar1);
@@ -135,7 +130,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
-                // TODO Auto-generated method stub
 
                 SysProps.GetSysProps(MainActivity.this).setBrightness(seekBar.getProgress());
                 //t1.setTextSize(progress);
@@ -144,9 +138,57 @@ public class MainActivity extends Activity implements View.OnClickListener{
             }
         });
 
+        final SeekBar skVol= findViewById(R.id.seekBarVol);
+        skVol.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+
+                SysProps.GetSysProps(MainActivity.this).setVolume(MainActivity.this, seekBar.getProgress());
+
+            }
+        });
+
+        final SeekBar skSpeedSim= findViewById(R.id.seekBarSpeedSim);
+        final TextView txtSpeed = findViewById(R.id.txtSpeedSim);
+        skSpeedSim.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            double oldSpeed = Double.NaN;
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+
+                int speed = progress;
+                txtSpeed.setText(""+speed);
 
 
-
+                Intent intent = new Intent(MghService.INTENT_ACTION_UPD_SPEED);
+                intent.putExtra(MghService.INTENT_EXTRA_SPEED, "" + (int) Math.round(speed));
+                intent.putExtra(MghService.INTENT_EXTRA_SPEED_DBL, (double) Math.round(speed));
+                intent.putExtra(MghService.INTENT_EXTRA_SPEED_OLD_DBL, oldSpeed);
+                sendBroadcast(intent);
+                oldSpeed = speed;
+            }
+        });
     }
 
 

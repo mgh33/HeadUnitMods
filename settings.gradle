@@ -1,1 +1,1 @@
-include ':app', ':mtcmod', ':mghlibs', ':displaylight', ':YoctoLib'
+include ':app', ':mtcmod', ':mghlibs', ':headunitmods', ':YoctoLib'

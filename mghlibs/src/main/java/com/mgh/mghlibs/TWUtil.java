@@ -15,10 +15,21 @@ public class TWUtil {
     private Object mObj;
     private final static String TAG = "mgh-twutil";
 
-//    public final static int MUTE_EVENT = 517;
+    //    public final static int MUTE_EVENT = 517;
     public final static int VOLUME_EVENT = 515;
 
-    public TWUtil() {
+    private static TWUtil instance = null;
+
+    public static TWUtil getInstance(){
+
+        if (instance == null)
+            instance = new TWUtil();
+
+        return instance;
+    }
+
+
+    private TWUtil() {
 
         Class c = null;
         try {

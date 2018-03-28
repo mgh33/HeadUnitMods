@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -15,11 +16,23 @@ import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MghService extends Service implements LocationListener, VolumeObserver.IVolumeUpdateListener {
 
+
+    public interface ISpeedUpdateListener{
+        void speedChanged(double oldValue, double newValue);
+    }
+
+
     private final static String TAG = "mgh-service";
 
+    public final static String INTENT_EXTRA_SPEED_DBL = "speed_dbl";
+    public final static String INTENT_EXTRA_SPEED_OLD_DBL = "speed_old_dbl";
     public final static String INTENT_EXTRA_SPEED = "speed"; //MghService.class.getCanonicalName() + ".speed";
     public final static String INTENT_EXTRA_VOLUME = "volume"; //MghService.class.getCanonicalName() + ".vol";
     public final static String INTENT_EXTRA_BRIGHTNESS = MghService.class.getCanonicalName() + ".brightness";
@@ -35,20 +48,29 @@ public class MghService extends Service implements LocationListener, VolumeObser
 
     private VolumeObserver volumeObserver;
 
-    private Handler registerHandler = new Handler(){
+
+    private static class RegisterHandler extends Handler{
+
+        private WeakReference<MghService> thisRef;
+        RegisterHandler(MghService service){
+            thisRef = new WeakReference<MghService>(service);
+        }
+
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
             //Log.v(TAG, "try to register location manager");
-            if (! register()){
+            if (! thisRef.get().register()){
                 // try to register again after 30sec
-                registerHandler.sendEmptyMessageDelayed(0, 30000);
+                thisRef.get().registerHandler.sendEmptyMessageDelayed(0, 30000);
                 Log.e(TAG, "error on register location manager");
             }
             //msg.recycle();
         }
     };
+
+    private Handler registerHandler = new RegisterHandler(this);
 
 
     //region Overrides
@@ -56,7 +78,8 @@ public class MghService extends Service implements LocationListener, VolumeObser
     public void onCreate(){
         super.onCreate();
 
-        volumeObserver =  new VolumeObserver(this, this);
+        volumeObserver =  VolumeObserver.getVolumeObserver(this);
+        volumeObserver.addListener(this);
 
         // fill the fields with current values
         volChanged();
@@ -112,9 +135,27 @@ public class MghService extends Service implements LocationListener, VolumeObser
         return false;
     }
 
+    private List<ISpeedUpdateListener> listeners = new ArrayList<>();
+    public void addListener(ISpeedUpdateListener listener){
+        listeners.add(listener);
+    }
+
+    private void fireSpeedChange(double oldVal, double newVal){
+        for (ISpeedUpdateListener l: listeners) {
+            l.speedChanged(oldVal, newVal);
+        }
+    }
+
+    private final IBinder mBinder = new LocalBinder();
+    public class LocalBinder extends Binder{
+        public void addListener(ISpeedUpdateListener listener){
+            this.addListener(listener);
+        }
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return new LocalBinder();
     }
 
     private long lstSpeed;
@@ -126,7 +167,15 @@ public class MghService extends Service implements LocationListener, VolumeObser
         //Log.v(TAG, "onlocationchanged");
         try {
 
-            if (!location.hasSpeed()) return; // Speed control is disabled
+            if (!location.hasSpeed()) {
+                // Speed control is disabled
+                Intent intent = new Intent(INTENT_ACTION_UPD_SPEED);
+                intent.putExtra(INTENT_EXTRA_SPEED, "." + (int) Math.round(lstSpeed*3.6));
+                intent.putExtra(INTENT_EXTRA_SPEED_DBL, Double.NaN);
+                intent.putExtra(INTENT_EXTRA_SPEED_OLD_DBL, Double.NaN);
+                sendBroadcast(intent);
+                return;
+            }
 
             //Log.v(TAG, "accuracy: " + location.getAccuracy());
 
@@ -138,8 +187,11 @@ public class MghService extends Service implements LocationListener, VolumeObser
             if (spd != lstSpeed) {
                 Log.v(TAG, "onlocationchanged: speed=" + spd);
                 Intent intent = new Intent(INTENT_ACTION_UPD_SPEED);
-                intent.putExtra(INTENT_EXTRA_SPEED, spd*3.6);
+                intent.putExtra(INTENT_EXTRA_SPEED, "" + (int) Math.round(speed*3.6));
+                intent.putExtra(INTENT_EXTRA_SPEED_DBL, (double) Math.round(speed*3.6));
+                intent.putExtra(INTENT_EXTRA_SPEED_OLD_DBL, (double) Math.round(lstSpeed*3.6));
                 sendBroadcast(intent);
+                fireSpeedChange(lstSpeed, spd);
             }
             lstSpeed = spd;
         }catch (Throwable e){
@@ -158,7 +210,7 @@ public class MghService extends Service implements LocationListener, VolumeObser
 
         Intent intent = new Intent(INTENT_ACTION_UPD_VOLUME);
         intent.putExtra(INTENT_EXTRA_VOLUME, str );
-        intent.putExtra(INTENT_EXTRA_MUTE, volumeObserver.getMute());
+        intent.putExtra(INTENT_EXTRA_MUTE, SysProps.getMute(this));
         sendBroadcast(intent);
     }
 
@@ -173,7 +225,7 @@ public class MghService extends Service implements LocationListener, VolumeObser
     //region empty Overrides
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        Log.v(TAG, "GPS status volChanged: " + status);
+        Log.v(TAG, "GPS status onStatusChanged: " + status);
     }
 
     @Override
@@ -185,7 +237,7 @@ public class MghService extends Service implements LocationListener, VolumeObser
     public void onProviderDisabled(String provider) {
         Log.v(TAG, "GPS provider disabled");
     }
-    //endregion
+
     //endregion
 
 }

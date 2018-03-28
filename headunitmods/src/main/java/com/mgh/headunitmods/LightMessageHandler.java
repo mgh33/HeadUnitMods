@@ -1,16 +1,15 @@
-package com.mgh.displaylight;
+package com.mgh.headunitmods;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.mgh.mghlibs.SysProps;
 import com.yoctopuce.YoctoAPI.YAPI;
 import com.yoctopuce.YoctoAPI.YAPI_Exception;
 import com.yoctopuce.YoctoAPI.YLightSensor;
-import android.content.SharedPreferences;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -27,14 +26,15 @@ public class LightMessageHandler extends Handler {
 
     private static LightMessageHandler handler;
 
-    private SharedPreferences settings;
     private YLightSensor sensor = null;
     private SysProps props;
     private Map<Double, Integer> pts;
     private Context ctx;
 
 
-    public static LightMessageHandler GetHandler(Context ctx){
+    private boolean isInit;
+
+    static LightMessageHandler GetHandler(Context ctx){
 
         if (handler == null)
             handler = new LightMessageHandler(ctx);
@@ -44,11 +44,10 @@ public class LightMessageHandler extends Handler {
 
     private LightMessageHandler(Context ctx){
 
+        isInit = false;
         this.ctx = ctx;
-        settings = PreferenceManager.getDefaultSharedPreferences(ctx);
 
         props = SysProps.GetSysProps(ctx);
-
         props.setBrightness(200);
 
         pts = new LinkedHashMap<>();
@@ -66,7 +65,7 @@ public class LightMessageHandler extends Handler {
     }
 
     private boolean isEnabled() {
-        return settings != null && settings.getBoolean("enabled", false);
+        return SettingsHelper.getHelper(ctx).BrightnessAdaptionEnabled();
     }
 
 
@@ -100,9 +99,10 @@ public class LightMessageHandler extends Handler {
         if (sensor != null){
             Log.d(TAG, "sensor found");
             MainActivity.log("Sensor found");
-            this.sendEmptyMessageDelayed(0, 1000);
+            this.sendEmptyMessageDelayed(MSG_INIT, 1000);
         }
 
+        isInit = true;
         return false;
     }
 
@@ -131,12 +131,13 @@ public class LightMessageHandler extends Handler {
 
         switch (msg.what) {
             case MSG_INIT:
-                if (init()) {
-                    // error
-                    Message newMsg = this.obtainMessage(MSG_INIT);
-                    this.sendMessageDelayed(newMsg, 10000);
-                    break;
-                }
+                if (!isInit)
+                    if (init()) {
+                        // error
+                        Message newMsg = this.obtainMessage(MSG_INIT);
+                        this.sendMessageDelayed(newMsg, 10000);
+                        break;
+                    }
                 this.removeMessages(MSG_INIT);
                 // no break here; go on with read val
             case MSG_READ_VAL: {

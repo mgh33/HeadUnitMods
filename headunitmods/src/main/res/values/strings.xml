@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">HeadUnitMods</string>
+    <string name="BtnSettings">Settings</string>
+
+    <string name="pref_Enable">Enable brightness adjustment</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="cat_volume">Volume</string>
+    <string name="speed_enable">Automatic Speedadaption</string>
+    <string name="speed_range_sum">Velocities on which the volume will be in/decreased</string>
+    <string name="speed_range_title">Speed levels</string>
+    <string name="speed_level_title">Change level</string>
+    <string name="speed_level_sum">Value to change on every step</string>
+
+</resources>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Light">
+        <SwitchPreference android:title="Automatic Adaption"
+            android:key="brightness.enable"
+            android:defaultValue="true"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/cat_volume">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="speed.enable"
+            android:title="@string/speed_enable" />
+        <EditTextPreference
+            android:defaultValue="5, 55, 80, 95, 123"
+            android:dependency="speed.enable"
+            android:key="speed.speedrange"
+            android:summary="@string/speed_range_sum"
+            android:title="@string/speed_range_title" >
+        </EditTextPreference>
+        <EditTextPreference
+            android:defaultValue="1"
+            android:dependency="speed.enable"
+            android:key="speed.speedvol"
+            android:summary="@string/speed_level_sum"
+            android:title="@string/speed_level_title"/>
+        <EditTextPreference
+            android:defaultValue="3"
+            android:dependency="speed.enable"
+            android:key="speed.tol"
+            android:summary="The volume will be in/decreased if the speed is higher/lower than the level +/- tolerance"
+            android:title="Speed tolerance" >
+        </EditTextPreference>
+    </PreferenceCategory>
+
+</PreferenceScreen>

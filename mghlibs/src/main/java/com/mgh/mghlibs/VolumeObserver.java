@@ -11,14 +11,16 @@ import android.os.Message;
 import android.util.Log;
 import android.provider.Settings.System;
 
-
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 
 class VolumeObserver extends ContentObserver {
 
     private final static String TAG = "mgh-volumeObserver";
 
-    private IVolumeUpdateListener listener;
+    private List<IVolumeUpdateListener> listener = new ArrayList<>();
     private int lstVol;
     private int lstVolChangedBroad = 15;
     private int lstBrightness;
@@ -32,7 +34,14 @@ class VolumeObserver extends ContentObserver {
         void brightChanged();
     }
 
-    private class VolumeTwHandler extends Handler{
+    private static class VolumeTwHandler extends Handler{
+        private WeakReference<VolumeObserver> thisRef;
+
+        public  VolumeTwHandler(VolumeObserver observer){
+            super();
+            thisRef = new WeakReference<>(observer);
+        }
+
         @Override
         public void handleMessage(Message msg) {
 
@@ -41,23 +50,39 @@ class VolumeObserver extends ContentObserver {
             switch (msg.what){
                 case TWUtil.VOLUME_EVENT:
                     if (msg.arg1 >= 0){
-                        lstVol = msg.arg1;
-                        lstVolChangedBroad = lstVol;
+                        thisRef.get().lstVol = msg.arg1;
+                        thisRef.get().lstVolChangedBroad = thisRef.get().lstVol;
                     } else {
                         // mute
-                        lstVolChangedBroad = 0;
+                        thisRef.get().lstVolChangedBroad = 0;
                     }
-                    listener.volChanged();
+                    for (IVolumeUpdateListener l: thisRef.get().listener) {
+                        l.volChanged();
+                    }
+
                     break;
             }
         }
     }
 
+    //region Singleton
+    private static VolumeObserver volObserver = null;
+    public static VolumeObserver getVolumeObserver(Context ctx){
+        if (volObserver == null)
+            volObserver = new VolumeObserver(ctx);
+        return volObserver;
+    }
+    //end region
 
-    public VolumeObserver(Context ctx, final IVolumeUpdateListener listener) {
+
+    public void addListener(final IVolumeUpdateListener listener){
+        this.listener.add(listener);
+    }
+
+    private VolumeObserver(Context ctx) {
         super(new Handler());
 
-        this.listener = listener;
+
         this.ctx = ctx;
         props = SysProps.GetSysProps(ctx);
 
@@ -67,11 +92,11 @@ class VolumeObserver extends ContentObserver {
         ctx.getContentResolver().registerContentObserver(System.getUriFor("screen_brightness"), false, this);
         ctx.getContentResolver().registerContentObserver(System.getUriFor("cfg_backlight="), false, this);
 
-        TWUtil util = new TWUtil();
+        TWUtil util = TWUtil.getInstance();
         if (util.open(new short[]{(short) TWUtil.VOLUME_EVENT}) == 0) {
 
             util.start();
-            util.addHandler("test", new VolumeTwHandler());
+            util.addHandler("test", new VolumeTwHandler(this));
         }else{
             util.close();
         }
@@ -87,7 +112,7 @@ class VolumeObserver extends ContentObserver {
                         if (intent.getIntExtra("keyCode", -1) == 4){
                             // key for Mute is pressed
                             //Log.v(TAG, "mute received");
-                            listener.volChanged();
+                            fireVolChanged();
                         }
                     }catch (Throwable e){
                         Log.e(TAG, "error on handling extra of mute", e);
@@ -101,7 +126,7 @@ class VolumeObserver extends ContentObserver {
                     }catch (Throwable e){
                         Log.e(TAG, "error on handling extra of VOLUME_CHANGED", e);
                     }
-                    listener.volChanged();
+                    fireVolChanged();
                 }
             }
         };
@@ -118,6 +143,12 @@ class VolumeObserver extends ContentObserver {
 
     }
 
+    private void fireVolChanged(){
+        Log.v(TAG, "update listener");
+        for (IVolumeUpdateListener l: listener) {
+            l.volChanged();
+        }
+    }
 
     @Override
     public boolean deliverSelfNotifications() {
@@ -133,13 +164,15 @@ class VolumeObserver extends ContentObserver {
         int currentBrightness = props.getBrightness();
 
         if (lstVol != currentVolume) {
-            Log.v(TAG, "update listener");
-            listener.volChanged();
+            fireVolChanged();
         }
 
         if (lstBrightness != currentBrightness) {
             Log.v(TAG, "update listener brightness: " + currentBrightness);
-            listener.brightChanged();
+            for (IVolumeUpdateListener l: listener) {
+                l.brightChanged();
+            }
+
         }
         lstVol = currentVolume;
         lstBrightness = currentBrightness;
@@ -151,7 +184,7 @@ class VolumeObserver extends ContentObserver {
         return lstVol;
     }
 
-    public boolean getMute(){
+    boolean getMute(){
         try{
             //final String KEY = "av_mute=";
             //String mute = am.getParameters(KEY);

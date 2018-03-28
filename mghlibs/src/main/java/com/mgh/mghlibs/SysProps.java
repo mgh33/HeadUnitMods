@@ -5,6 +5,8 @@ import android.content.Context;
 import android.util.Log;
 import android.provider.Settings.System;
 
+import static com.mgh.mghlibs.TWUtil.VOLUME_EVENT;
+
 public class SysProps {
 
     private final static String TAG = "mgh-volumeObserver";
@@ -33,15 +35,33 @@ public class SysProps {
     }
 
     public static int getVolume(Context ctx){
-        try{
-            final String KEY = "av_volume=";
-            return System.getInt(ctx.getContentResolver(), KEY, 10);
-        }catch (Throwable e){
-            Log.e(TAG, "error on read volume", e);
-        }
+
+        VolumeObserver observer = VolumeObserver.getVolumeObserver(ctx);
+        return observer.getVolume();
+
+    }
+
+    public boolean getMute(){
+
+        return getMute(ctx);
+
+    }
+
+    public static boolean getMute(Context ctx){
+
+        VolumeObserver observer = VolumeObserver.getVolumeObserver(ctx);
+        return observer.getMute();
+
+    }
+    public static int setVolume(Context ctx, int volume){
+
+        TWUtil util = TWUtil.getInstance();
+        util.write(VOLUME_EVENT, 1, volume);
 
         return 0;
     }
+
+
     public int getBrightness(){
 
         return getBrightness(ctx);
