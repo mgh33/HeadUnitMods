@@ -21,9 +21,10 @@ public class LightService extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED") ||
-                intent.getAction().equals("android.intent.action.QUICKBOOT_POWERON") ||
-                intent.getAction().equals("android.intent.action.USB_DEVICE_ATTACHED") ) {
+        if ("com.mgh.BOOT".equals(intent.getAction()) ||
+                "android.intent.action.BOOT_COMPLETED".equals(intent.getAction()) ||
+                "android.intent.action.QUICKBOOT_POWERON".equals(intent.getAction()) ||
+                "android.intent.action.USB_DEVICE_ATTACHED".equals(intent.getAction())) {
 
             Handler myHandler = LightMessageHandler.GetHandler(context);
 

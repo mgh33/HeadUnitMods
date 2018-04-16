@@ -16,6 +16,12 @@ public class TWUtil {
     private final static String TAG = "mgh-twutil";
 
     //    public final static int MUTE_EVENT = 517;
+    //public final static int START_USB_IPOD_EVENT = 85;
+    //public final static int START_FSYNC_MEDIA_EVENT = 86;
+    //public final static int START_DATE_SETTINGS_EVENT = 88;
+    //public final static int START_SETTINGS_EVENT = 89;
+    //public final static int START_APP_SETTINGS_EVENT = 90;
+    public final static int START_REVERSE_EVENT = 523/40732;
     public final static int VOLUME_EVENT = 515;
 
     private static TWUtil instance = null;
@@ -42,6 +48,8 @@ public class TWUtil {
 
         try {
             mObj = c.newInstance();
+            //Object o = mObj.getClass().getMethods();
+            //Log.d(TAG, "TWUtil: " + o.toString());
         } catch (InstantiationException e) {
             //e.printStackTrace();
             Log.e(TAG, "error init call", e);
@@ -161,6 +169,33 @@ public class TWUtil {
             return -1;
         }
 
+    }
+
+    public void write(int p1, int p2) {
+
+        if (mObj == null) return;
+
+        Method m = null;
+        try {
+            Object o = mObj.getClass().getMethods();
+            m = mObj.getClass().getMethod("write", int.class, int.class);
+        } catch (NoSuchMethodException e) {
+            //e.printStackTrace();
+            Log.e(TAG, "error get method write(2)", e);
+            return;
+        }
+
+        try {
+            m.invoke(mObj, p1, p2);
+        } catch (IllegalAccessException e) {
+            //e.printStackTrace();
+            Log.e(TAG, "error call write(2)", e);
+            return;
+        } catch (InvocationTargetException e) {
+            //e.printStackTrace();
+            Log.e(TAG, "error call write(2)2", e);
+            return;
+        }
     }
 
     public void write(int p1, int p2, int p3){

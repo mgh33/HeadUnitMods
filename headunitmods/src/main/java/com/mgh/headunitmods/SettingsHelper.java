@@ -83,7 +83,8 @@ class SettingsHelper {
             }
         }
         _oldSpeed = newSpeed;
-        return (List<Integer>) speedValues.clone();
+
+        return new ArrayList<>(speedValues);
     }
 
     public int getSpeedChangeValue() {

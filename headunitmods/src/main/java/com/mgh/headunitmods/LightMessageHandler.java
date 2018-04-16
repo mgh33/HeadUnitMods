@@ -10,30 +10,28 @@ import com.yoctopuce.YoctoAPI.YAPI;
 import com.yoctopuce.YoctoAPI.YAPI_Exception;
 import com.yoctopuce.YoctoAPI.YLightSensor;
 
+import java.lang.ref.WeakReference;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Created by heiss on 06.03.2018.
- */
 
 public class LightMessageHandler extends Handler {
 
     private final static String TAG = "mgh-messagehandler";
 
-    public final static int MSG_INIT = 0;
-    public final static int MSG_READ_VAL = 1;
+    final static int MSG_INIT = 0;
+    private final static int MSG_READ_VAL = 1;
 
-    private static LightMessageHandler handler;
 
     private YLightSensor sensor = null;
     private SysProps props;
     private Map<Double, Integer> pts;
-    private Context ctx;
+    private WeakReference<Context> ctxRef;
 
 
     private boolean isInit;
 
+    private static LightMessageHandler handler;
     static LightMessageHandler GetHandler(Context ctx){
 
         if (handler == null)
@@ -45,7 +43,7 @@ public class LightMessageHandler extends Handler {
     private LightMessageHandler(Context ctx){
 
         isInit = false;
-        this.ctx = ctx;
+        this.ctxRef = new WeakReference<>(ctx);
 
         props = SysProps.GetSysProps(ctx);
         props.setBrightness(200);
@@ -65,14 +63,14 @@ public class LightMessageHandler extends Handler {
     }
 
     private boolean isEnabled() {
-        return SettingsHelper.getHelper(ctx).BrightnessAdaptionEnabled();
+        return SettingsHelper.getHelper(ctxRef.get()).BrightnessAdaptionEnabled();
     }
 
 
     private boolean init() {
         MainActivity.log("LightService init");
         try {
-            YAPI.EnableUSBHost(ctx);
+            YAPI.EnableUSBHost(ctxRef.get());
         } catch (YAPI_Exception e) {
             Log.e(TAG, "error on init yapi",e);
             MainActivity.log("error on init yapi");

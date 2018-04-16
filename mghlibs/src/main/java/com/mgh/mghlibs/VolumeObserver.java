@@ -97,6 +97,7 @@ class VolumeObserver extends ContentObserver {
 
             util.start();
             util.addHandler("test", new VolumeTwHandler(this));
+            util.write(TWUtil.VOLUME_EVENT, 255);
         }else{
             util.close();
         }
@@ -181,6 +182,7 @@ class VolumeObserver extends ContentObserver {
 
 
     public int getVolume(){
+
         return lstVol;
     }
 

@@ -21,7 +21,7 @@ public class BootReceiver extends BroadcastReceiver {
             //Log.v(TAG, "boot onreceive Boot complete");
             Intent intent1 = new Intent(context, MghService.class);
             context.startService(intent1);
-            //Log.v(TAG, "started MghService");
+            Log.v(TAG, "started MghService");
         }catch (Throwable e) {
             Log.e(TAG, "error onreceive", e);
         }

@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -17,16 +16,10 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
+
 
 
 public class MghService extends Service implements LocationListener, VolumeObserver.IVolumeUpdateListener {
-
-
-    public interface ISpeedUpdateListener{
-        void speedChanged(double oldValue, double newValue);
-    }
 
 
     private final static String TAG = "mgh-service";
@@ -53,7 +46,7 @@ public class MghService extends Service implements LocationListener, VolumeObser
 
         private WeakReference<MghService> thisRef;
         RegisterHandler(MghService service){
-            thisRef = new WeakReference<MghService>(service);
+            thisRef = new WeakReference<>(service);
         }
 
         @Override
@@ -68,7 +61,7 @@ public class MghService extends Service implements LocationListener, VolumeObser
             }
             //msg.recycle();
         }
-    };
+    }
 
     private Handler registerHandler = new RegisterHandler(this);
 
@@ -135,27 +128,13 @@ public class MghService extends Service implements LocationListener, VolumeObser
         return false;
     }
 
-    private List<ISpeedUpdateListener> listeners = new ArrayList<>();
-    public void addListener(ISpeedUpdateListener listener){
-        listeners.add(listener);
-    }
 
-    private void fireSpeedChange(double oldVal, double newVal){
-        for (ISpeedUpdateListener l: listeners) {
-            l.speedChanged(oldVal, newVal);
-        }
-    }
 
-    private final IBinder mBinder = new LocalBinder();
-    public class LocalBinder extends Binder{
-        public void addListener(ISpeedUpdateListener listener){
-            this.addListener(listener);
-        }
-    }
+
 
     @Override
     public IBinder onBind(Intent intent) {
-        return new LocalBinder();
+        return null;
     }
 
     private long lstSpeed;
@@ -191,7 +170,6 @@ public class MghService extends Service implements LocationListener, VolumeObser
                 intent.putExtra(INTENT_EXTRA_SPEED_DBL, (double) Math.round(speed*3.6));
                 intent.putExtra(INTENT_EXTRA_SPEED_OLD_DBL, (double) Math.round(lstSpeed*3.6));
                 sendBroadcast(intent);
-                fireSpeedChange(lstSpeed, spd);
             }
             lstSpeed = spd;
         }catch (Throwable e){

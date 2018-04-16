@@ -17,6 +17,7 @@
             android:exported="true"
             android:enabled="true">
             <intent-filter>
+                <action android:name="com.mgh.BOOT" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="com.microntek.irkeyUp"/>
