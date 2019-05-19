@@ -42,7 +42,7 @@ public class LightMessageHandler extends Handler {
     }
 
     private LightMessageHandler(Context ctx){
-        Log.v(TAG, "constructor");
+        //Log.v(TAG, "constructor");
         isInit = false;
         this.ctxRef = new WeakReference<>(ctx);
 
@@ -64,14 +64,14 @@ public class LightMessageHandler extends Handler {
     }
 
     private boolean isEnabled() {
-        Log.v(TAG, "isEnabled");
+        //Log.v(TAG, "isEnabled");
         return SettingsHelper.getHelper(ctxRef.get()).BrightnessAdaptionEnabled();
     }
 
 
     private boolean init() {
         MainActivity.log("LightService init");
-        Log.v(TAG, "Lightservice");
+        //Log.v(TAG, "Lightservice");
         try {
             YAPI.EnableUSBHost(ctxRef.get());
         } catch (YAPI_Exception e) {
@@ -96,7 +96,7 @@ public class LightMessageHandler extends Handler {
             return true;
         }
 
-        Log.v(TAG, "search Sensor");
+        //Log.v(TAG, "search Sensor");
         sensor = YLightSensor.FirstLightSensor();
         if (sensor != null){
             Log.d(TAG, "sensor found");
@@ -104,6 +104,7 @@ public class LightMessageHandler extends Handler {
             isInit = true;
             return false;
         }else{
+            Log.d(TAG, "sensor NOT found");
             this.sendEmptyMessageDelayed(MSG_INIT, 1000);
             return true;
         }
@@ -127,7 +128,7 @@ public class LightMessageHandler extends Handler {
 
     @Override
     public void handleMessage(Message msg) {
-        Log.v(TAG, "handleMessage: " + msg);
+        //Log.v(TAG, "handleMessage: " + msg);
         super.handleMessage(msg);
 
         if (!isEnabled()) {
@@ -142,7 +143,7 @@ public class LightMessageHandler extends Handler {
                 if (!isInit)
                     if (init()) {
                         Log.v(TAG, "Exec init");
-                        // error
+                         // error
                         Message newMsg = this.obtainMessage(MSG_INIT);
                         this.sendMessageDelayed(newMsg, 10000);
                         break;
