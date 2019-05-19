@@ -41,7 +41,10 @@ public class VolSpeedReceiver extends BroadcastReceiver {
 
     }
 
-    public static void speedChanged(double speed, double oldSpeed, Context context) {
+    private int nxtLower = -1;
+    private int nxtHigher = -1;
+
+    public void speedChanged(double speed, double oldSpeed, Context context) {
 
 
         SettingsHelper settings = SettingsHelper.getHelper(context);
@@ -66,29 +69,41 @@ public class VolSpeedReceiver extends BroadcastReceiver {
         if (Double.isNaN(oldSpeed) || Double.isNaN(speed))
             return;
 
-        if (oldSpeed < speed){
-            // we got faster
-            for (int i=0; i < speed_steps.size();i++) {
-                int step = speed_steps.get(i) + tol;
-                if (speed > step &&
-                        oldSpeed <= step) {
-                    volNew += volChange;
-                    Log.v(TAG, " -- i:" + i + " s:" + step + "/" + speed_steps.get(i) + " +" +volNew);
-                }
-            }
-        }else if (oldSpeed > speed){
-            // we got slower
-            for (int i=0; i < speed_steps.size();i++) {
-                int step = speed_steps.get(i) - tol;
-                if (speed < step &&
-                        oldSpeed >= step) {
-                    volNew -= volChange;
-                    Log.v(TAG, " -- i:" + i + " s:" + step + "/" + speed_steps.get(i) + " -" +volNew);
-                }
-            }
 
+        if (nxtHigher == -1 || nxtLower == -1) {
+            for (int i=0; i < speed_steps.size();i++){
+                if (speed > speed_steps.get(i)){
+                    nxtLower = i;
+                    nxtHigher = i+1;
+                    if (nxtHigher == speed_steps.size())
+                        nxtHigher--;
+                }
+            }
         }
 
+        if (nxtHigher == -1 || nxtLower == -1) {
+            Log.e(TAG, "config error");
+            return;
+        }
+
+        //Log.d(TAG, "Speed is: " + speed + ", steps are: " + speed_steps.toString());
+
+        if (speed > speed_steps.get(nxtHigher) + tol) {
+            //Log.d(TAG, "Set (+) volume: " + volNew + "+" + volChange + " / " + last_speedstep + " / " + speed + "(" + spd_step + ")");
+            volNew = volNew + volChange;
+            nxtLower = nxtHigher;
+            if (nxtHigher < speed_steps.size() - 1)
+                nxtHigher ++;
+        }
+
+        if (speed < speed_steps.get(nxtLower) - tol) {
+            // Log.d(TAG, "Set (-) volume: " + volNew + "-" + volChange + " / " + last_speed + " / " + speed + "(" + spd_step + ")");
+            volNew = volNew - volChange;
+            nxtHigher = nxtLower;
+            if (nxtLower > 0)
+                nxtLower --;
+
+        }
 
         if (volNew > 0 && volNew != vol) {
             // Change it!

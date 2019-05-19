@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class LightMessageHandler extends Handler {
 
-    private final static String TAG = "mgh-messagehandler";
+    private final static String TAG = "mgh-lightMsgHanlder";
 
     final static int MSG_INIT = 0;
     private final static int MSG_READ_VAL = 1;
@@ -34,6 +34,7 @@ public class LightMessageHandler extends Handler {
     private static LightMessageHandler handler;
     static LightMessageHandler GetHandler(Context ctx){
 
+        Log.v(TAG, "Gethandler");
         if (handler == null)
             handler = new LightMessageHandler(ctx);
 
@@ -41,7 +42,7 @@ public class LightMessageHandler extends Handler {
     }
 
     private LightMessageHandler(Context ctx){
-
+        Log.v(TAG, "constructor");
         isInit = false;
         this.ctxRef = new WeakReference<>(ctx);
 
@@ -63,12 +64,14 @@ public class LightMessageHandler extends Handler {
     }
 
     private boolean isEnabled() {
+        Log.v(TAG, "isEnabled");
         return SettingsHelper.getHelper(ctxRef.get()).BrightnessAdaptionEnabled();
     }
 
 
     private boolean init() {
         MainActivity.log("LightService init");
+        Log.v(TAG, "Lightservice");
         try {
             YAPI.EnableUSBHost(ctxRef.get());
         } catch (YAPI_Exception e) {
@@ -93,19 +96,25 @@ public class LightMessageHandler extends Handler {
             return true;
         }
 
+        Log.v(TAG, "search Sensor");
         sensor = YLightSensor.FirstLightSensor();
         if (sensor != null){
             Log.d(TAG, "sensor found");
             MainActivity.log("Sensor found");
+            isInit = true;
+            return false;
+        }else{
             this.sendEmptyMessageDelayed(MSG_INIT, 1000);
+            return true;
         }
 
-        isInit = true;
-        return false;
+        //isInit = true;
+        //return false;
     }
 
     private void setBrightness(double brightness){
 
+        Log.v(TAG, "SetBrightness");
         int newVal = 0;
         for (Map.Entry<Double, Integer> e: pts.entrySet()){
             if (brightness > e.getKey())
@@ -118,6 +127,7 @@ public class LightMessageHandler extends Handler {
 
     @Override
     public void handleMessage(Message msg) {
+        Log.v(TAG, "handleMessage: " + msg);
         super.handleMessage(msg);
 
         if (!isEnabled()) {
@@ -131,6 +141,7 @@ public class LightMessageHandler extends Handler {
             case MSG_INIT:
                 if (!isInit)
                     if (init()) {
+                        Log.v(TAG, "Exec init");
                         // error
                         Message newMsg = this.obtainMessage(MSG_INIT);
                         this.sendMessageDelayed(newMsg, 10000);
